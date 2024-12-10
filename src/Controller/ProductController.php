@@ -8,41 +8,58 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends AbstractController
 {
     #[Route('/products', methods: ['GET'])]
-    public function index(ProductRepository $productRepository): JsonResponse
+    public function index(ProductRepository $productRepository, SerializerInterface $serializer): JsonResponse
     {
         $products = $productRepository->findAll();
-        return $this->json($products);
+
+        $responseData = $serializer->serialize($products, 'json', ['groups' => 'product:read']);
+
+        return new JsonResponse($responseData, 200, [], true);
     }
 
     #[Route('/product/{id}', methods: ['GET'])]
-    public function show(Product $product): JsonResponse
+    public function show(Product $product, SerializerInterface $serializer): JsonResponse
     {
-        return $this->json($product);
+        $responseData = $serializer->serialize($product, 'json', ['groups' => 'product:read']);
+
+        return new JsonResponse($responseData, 200, [], true);
     }
 
-    #[Route('/product/create', methods: ['POST'])]
-    public function create(Request $request, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/api/product/create', methods: ['POST'])]
+    public function create(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
         $data = json_decode($request->getContent(), true);
 
         $product = new Product();
         $product->setName($data['name']);
         $product->setDescription($data['description']);
+        $product->setAuthor($this->getUser());
 
         $entityManager->persist($product);
         $entityManager->flush();
 
-        return $this->json($product, 201);
+        $responseData = $serializer->serialize($product, 'json', ['groups' => 'product:read']);
+
+        return new JsonResponse($responseData, 201, [], true);
     }
 
-    #[Route('/product/update/{id}', methods: ['PUT'])]
-    public function update(Request $request, Product $product, EntityManagerInterface $entityManager): JsonResponse
+    #[Route('/api/product/update/{id}', methods: ['PUT'])]
+    public function update(Request $request, Product $product, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        if ($this->getUser() !== $product->getAuthor()) {
+            return $this->json(['message' => 'Access denied: You are not the author of this product.'], 403);
+        }
+
         $data = json_decode($request->getContent(), true);
 
         $product->setName($data['name']);
@@ -50,16 +67,23 @@ class ProductController extends AbstractController
 
         $entityManager->flush();
 
-        return $this->json($product);
+        $responseData = $serializer->serialize($product, 'json', ['groups' => 'product:read']);
+
+        return new JsonResponse($responseData, 200, [], true);
     }
 
-    #[Route('/product/delete/{id}', methods: ['DELETE'])]
+    #[Route('/api/product/delete/{id}', methods: ['DELETE'])]
     public function delete(Product $product, EntityManagerInterface $entityManager): JsonResponse
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        if ($this->getUser() !== $product->getAuthor()) {
+            return $this->json(['message' => 'Access denied: You are not the author of this product.'], 403);
+        }
+
         $entityManager->remove($product);
         $entityManager->flush();
 
-        return $this->json(['message' => 'Bed deleted successfully'], 200);
-
+        return $this->json(['message' => 'Product deleted successfully'], 200);
     }
 }

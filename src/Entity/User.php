@@ -3,11 +3,13 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
@@ -18,11 +20,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["userjson"])]
+    #[Groups(["userjson", "product:read"])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
-    #[Groups(["userjson"])]
+    #[ORM\Column(length: 180, unique: true)]
+    #[Groups(["userjson", "product:read"])]
     private ?string $username = null;
 
     /**
@@ -36,8 +38,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(["userjson"])]
     private ?string $password = null;
+
+    /**
+     * @var Collection<int, Product>
+     */
+    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'author')]
+    private Collection $products;
+
+    public function __construct()
+    {
+        $this->products = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -74,7 +86,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRoles(): array
     {
         $roles = $this->roles;
-        // guarantee every user at least has ROLE_USER
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
@@ -110,7 +121,34 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+    }
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getProducts(): Collection
+    {
+        return $this->products;
+    }
+
+    public function addProduct(Product $product): static
+    {
+        if (!$this->products->contains($product)) {
+            $this->products->add($product);
+            $product->setAuthor($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduct(Product $product): static
+    {
+        if ($this->products->removeElement($product)) {
+            if ($product->getAuthor() === $this) {
+                $product->setAuthor(null);
+            }
+        }
+
+        return $this;
     }
 }
