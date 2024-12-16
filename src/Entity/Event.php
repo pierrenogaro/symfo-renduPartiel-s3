@@ -6,6 +6,8 @@ use App\Repository\EventRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 class Event
@@ -42,6 +44,7 @@ class Event
     private ?\DateTimeInterface $endDate = null;
 
     #[ORM\ManyToOne(inversedBy: 'organizedEvents')]
+    #[Groups(['event:read', 'event:write'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $organizer = null;
 
@@ -52,6 +55,14 @@ class Event
     #[ORM\Column(length: 10)]
     #[Groups(['event:read', 'event:write'])]
     private ?string $typeOfPlace = null;
+
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'events')]
+    private Collection $participants;
+
+    public function __construct()
+    {
+        $this->participants = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -130,7 +141,7 @@ class Event
         return $this;
     }
 
-    public function getOrganizer(): ?Profile
+    public function getOrganizer(): User
     {
         return $this->organizer;
     }
@@ -162,7 +173,25 @@ class Event
     public function setTypeOfPlace(string $typeOfPlace): static
     {
         $this->typeOfPlace = $typeOfPlace;
+        return $this;
+    }
 
+    public function getParticipants(): Collection
+    {
+        return $this->participants;
+    }
+
+    public function addParticipant(User $user): static
+    {
+        if (!$this->participants->contains($user)) {
+            $this->participants->add($user);
+        }
+        return $this;
+    }
+
+    public function removeParticipant(User $user): static
+    {
+        $this->participants->removeElement($user);
         return $this;
     }
 }

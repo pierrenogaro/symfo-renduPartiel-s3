@@ -26,9 +26,16 @@ class EventController extends AbstractController
     #[Route('/event/{id}', methods: ['GET'])]
     public function show(Event $event, SerializerInterface $serializer): JsonResponse
     {
-        $responseData = $serializer->serialize($event, 'json', ['groups' => 'event:read']);
+        $eventData = $serializer->serialize($event, 'json', ['groups' => 'event:read']);
 
-        return new JsonResponse($responseData, 200, [], true);
+        $participants = $event->getParticipants();
+
+        $participantsData = $serializer->serialize($participants, 'json', ['groups' => 'userjson']);
+
+        return new JsonResponse([
+            'event' => json_decode($eventData),
+            'participants' => json_decode($participantsData)
+        ], 200);
     }
 
     #[Route('/api/event/create', methods: ['POST'])]
@@ -113,5 +120,25 @@ class EventController extends AbstractController
         $entityManager->flush();
 
         return $this->json(['message' => 'Event deleted successfully'], 200);
+    }
+
+    #[Route('/api/event/participate/{id}', methods: ['POST'])]
+    public function participate(Event $event, EntityManagerInterface $entityManager): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $user = $this->getUser();
+
+        if ($event->getTypeOfPlace() !== 'public') {
+            return $this->json(['message' => 'This event is not public.'], 403);
+        }
+
+        if ($event->getParticipants()->contains($user)) {
+            return $this->json(['message' => 'You are already a participant in this event.'], 400);
+        }
+
+        $event->addParticipant($user);
+        $entityManager->flush();
+
+        return $this->json(['message' => 'You have successfully registered for the event.'], 200);
     }
 }

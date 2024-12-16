@@ -14,7 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ProfileController extends AbstractController
 {
-    #[Route('/profiles', methods: ['GET'])]
+    #[Route('/api/profiles', methods: ['GET'])]
     public function index(ProfileRepository $profileRepository, SerializerInterface $serializer): JsonResponse
     {
         $profiles = $profileRepository->findAll();
@@ -24,7 +24,7 @@ class ProfileController extends AbstractController
         return new JsonResponse($responseData, 200, [], true);
     }
 
-    #[Route('/profile/{id}', methods: ['GET'])]
+    #[Route('/api/profile/{id}', methods: ['GET'])]
     public function show(Profile $profile, EventRepository $eventRepository, SerializerInterface $serializer): JsonResponse
     {
         $user = $profile->getUser();

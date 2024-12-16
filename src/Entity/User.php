@@ -46,6 +46,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'author')]
     private Collection $events;
 
+    #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'participants')]
+    private Collection $participatedEvents;
+
     #[ORM\OneToOne(inversedBy: 'user', cascade: ['persist', 'remove'])]
     #[ORM\JoinColumn(nullable: false)]
     private ?Profile $profile = null;
@@ -53,6 +56,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->events = new ArrayCollection();
+        $this->participatedEvents = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -152,7 +156,25 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
                 $event->setAuthor(null);
             }
         }
+        return $this;
+    }
 
+    public function getParticipatedEvents(): Collection
+    {
+        return $this->participatedEvents;
+    }
+
+    public function addParticipatedEvent(Event $event): static
+    {
+        if (!$this->participatedEvents->contains($event)) {
+            $this->participatedEvents->add($event);
+        }
+        return $this;
+    }
+
+    public function removeParticipatedEvent(Event $event): static
+    {
+        $this->participatedEvents->removeElement($event);
         return $this;
     }
 
