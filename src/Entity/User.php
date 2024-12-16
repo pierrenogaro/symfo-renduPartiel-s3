@@ -20,11 +20,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["userjson", "product:read"])]
+    #[Groups(["userjson", "event:read"])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(["userjson", "product:read"])]
+    #[Groups(["userjson", "event:read"])]
     private ?string $username = null;
 
     /**
@@ -41,14 +41,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $password = null;
 
     /**
-     * @var Collection<int, Product>
+     * @var Collection<int, Event>
      */
-    #[ORM\OneToMany(targetEntity: Product::class, mappedBy: 'author')]
-    private Collection $products;
+    #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'author')]
+    private Collection $events;
 
     public function __construct()
     {
-        $this->products = new ArrayCollection();
+        $this->events = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -124,28 +124,28 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection<int, Product>
+     * @return Collection<int, Event>
      */
-    public function getProducts(): Collection
+    public function getEvents(): Collection
     {
-        return $this->products;
+        return $this->events;
     }
 
-    public function addProduct(Product $product): static
+    public function addEvent(Event $event): static
     {
-        if (!$this->products->contains($product)) {
-            $this->products->add($product);
-            $product->setAuthor($this);
+        if (!$this->events->contains($event)) {
+            $this->events->add($event);
+            $event->setAuthor($this);
         }
 
         return $this;
     }
 
-    public function removeProduct(Product $product): static
+    public function removeEvent(Event $event): static
     {
-        if ($this->products->removeElement($product)) {
-            if ($product->getAuthor() === $this) {
-                $product->setAuthor(null);
+        if ($this->events->removeElement($event)) {
+            if ($event->getAuthor() === $this) {
+                $event->setAuthor(null);
             }
         }
 

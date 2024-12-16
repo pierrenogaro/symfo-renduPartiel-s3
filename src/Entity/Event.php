@@ -2,31 +2,31 @@
 
 namespace App\Entity;
 
-use App\Repository\ProductRepository;
+use App\Repository\EventRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-#[ORM\Entity(repositoryClass: ProductRepository::class)]
-class Product
+#[ORM\Entity(repositoryClass: EventRepository::class)]
+class Event
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['product:read'])]
+    #[Groups(['event:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['product:read', 'product:write'])]
+    #[Groups(['event:read', 'event:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['product:read', 'product:write'])]
+    #[Groups(['event:read', 'event:write'])]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(inversedBy: 'products')]
+    #[ORM\ManyToOne(inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['product:read'])]
+    #[Groups(['event:read'])]
     private ?User $author = null;
 
     public function getId(): ?int
