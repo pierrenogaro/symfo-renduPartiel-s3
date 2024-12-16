@@ -24,7 +24,7 @@ class Event
     #[Groups(['event:read', 'event:write'])]
     private ?string $description = null;
 
-    #[ORM\ManyToOne(inversedBy: 'events')]
+    #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(['event:read'])]
     private ?User $author = null;
@@ -43,16 +43,15 @@ class Event
 
     #[ORM\ManyToOne(inversedBy: 'organizedEvents')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['event:read', 'event:write'])]
-    private ?Profile $organizer = null;
+    private ?User $organizer = null;
 
     #[ORM\Column(type: Types::BOOLEAN)]
     #[Groups(['event:read', 'event:write'])]
-    private ?bool $status = null; // true = public, false = private
+    private ?bool $status = null;
 
     #[ORM\Column(length: 10)]
     #[Groups(['event:read', 'event:write'])]
-    private ?string $typeOfPlace = null; // 'public' or 'private'
+    private ?string $typeOfPlace = null;
 
     public function getId(): ?int
     {
@@ -136,7 +135,7 @@ class Event
         return $this->organizer;
     }
 
-    public function setOrganizer(?Profile $organizer): static
+    public function setOrganizer(?User $organizer): self
     {
         $this->organizer = $organizer;
 

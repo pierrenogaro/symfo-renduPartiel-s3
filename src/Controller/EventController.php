@@ -36,12 +36,33 @@ class EventController extends AbstractController
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->json(['message' => 'You must be logged in to create an event.'], 403);
+        }
+
         $data = json_decode($request->getContent(), true);
+
+        if (!$data) {
+            return $this->json(['message' => 'Invalid JSON format.'], 400);
+        }
+
+        if (!isset($data['name'], $data['place'], $data['startDate'], $data['endDate'])) {
+            return $this->json(['message' => 'Missing required fields.'], 400);
+        }
 
         $event = new Event();
         $event->setName($data['name']);
-        $event->setDescription($data['description']);
-        $event->setAuthor($this->getUser());
+        $event->setDescription($data['description'] ?? null);
+        $event->setPlace($data['place']);
+        $event->setStartDate(new \DateTime($data['startDate']));
+        $event->setEndDate(new \DateTime($data['endDate']));
+        $event->setStatus($data['status'] ?? true);
+        $event->setTypeOfPlace($data['typeOfPlace'] ?? 'public');
+
+        $event->setOrganizer($user);
+        $event->setAuthor($user);
 
         $entityManager->persist($event);
         $entityManager->flush();
@@ -62,8 +83,15 @@ class EventController extends AbstractController
 
         $data = json_decode($request->getContent(), true);
 
+        if (!$data) {
+            return $this->json(['message' => 'Invalid JSON format.'], 400);
+        }
+
         $event->setName($data['name']);
-        $event->setDescription($data['description']);
+        $event->setDescription($data['description'] ?? $event->getDescription());
+        $event->setPlace($data['place'] ?? $event->getPlace());
+        $event->setStartDate(new \DateTime($data['startDate'] ?? $event->getStartDate()->format('Y-m-d H:i:s')));
+        $event->setEndDate(new \DateTime($data['endDate'] ?? $event->getEndDate()->format('Y-m-d H:i:s')));
 
         $entityManager->flush();
 

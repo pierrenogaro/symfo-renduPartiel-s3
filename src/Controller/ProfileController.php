@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Profile;
+use App\Repository\EventRepository;
 use App\Repository\ProfileRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,11 +25,18 @@ class ProfileController extends AbstractController
     }
 
     #[Route('/profile/{id}', methods: ['GET'])]
-    public function show(Profile $profile, SerializerInterface $serializer): JsonResponse
+    public function show(Profile $profile, EventRepository $eventRepository, SerializerInterface $serializer): JsonResponse
     {
-        $responseData = $serializer->serialize($profile, 'json', ['groups' => 'profile:read']);
+        $user = $profile->getUser();
+        $events = $eventRepository->findBy(['author' => $user]);
 
-        return new JsonResponse($responseData, 200, [], true);
+        $eventData = $serializer->serialize($events, 'json', ['groups' => 'event:read']);
+
+        $profileData = $serializer->serialize($profile, 'json', ['groups' => 'profile:read']);
+
+        return new JsonResponse([
+            'profile' => json_decode($profileData),
+            'events' => json_decode($eventData),], 200);
     }
 
     #[Route('/api/profile/update/{id}', methods: ['PUT'])]
