@@ -15,11 +15,11 @@ class Event
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['event:read'])]
+    #[Groups(['event:read', 'invitation:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['event:read', 'event:write'])]
+    #[Groups(['event:read', 'event:write', 'invitation:read'])]
     private ?string $name = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -49,8 +49,12 @@ class Event
     private ?User $organizer = null;
 
     #[ORM\Column(type: Types::BOOLEAN)]
-    #[Groups(['event:read', 'event:write'])]
-    private ?bool $status = null;
+    #[Groups(['event:write'])]
+    private ?bool $state = true;
+
+    #[ORM\Column(type: Types::BOOLEAN)]
+    #[Groups(['event:write'])]
+    private bool $status = true;
 
     #[ORM\Column(length: 10)]
     #[Groups(['event:read', 'event:write'])]
@@ -59,9 +63,13 @@ class Event
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'events')]
     private Collection $participants;
 
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Invitation::class, cascade: ['persist', 'remove'])]
+    private Collection $invitations;
+
     public function __construct()
     {
         $this->participants = new ArrayCollection();
+        $this->invitations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -153,12 +161,25 @@ class Event
         return $this;
     }
 
-    public function getStatus(): ?bool
+    #[Groups(['event:read'])]
+    public function getState(): string
     {
-        return $this->status;
+        return $this->state ? 'on schedule' : 'canceled';
     }
 
-    public function setStatus(bool $status): static
+    public function setState(bool $state): self
+    {
+        $this->state = $state;
+        return $this;
+    }
+
+    #[Groups(['event:read'])]
+    public function getStatus(): string
+    {
+        return $this->status ? 'public' : 'private';
+    }
+
+    public function setStatus(bool $status): self
     {
         $this->status = $status;
 
@@ -192,6 +213,30 @@ class Event
     public function removeParticipant(User $user): static
     {
         $this->participants->removeElement($user);
+        return $this;
+    }
+
+    public function getInvitations(): Collection
+    {
+        return $this->invitations;
+    }
+
+    public function addInvitation(Invitation $invitation): self
+    {
+        if (!$this->invitations->contains($invitation)) {
+            $this->invitations->add($invitation);
+            $invitation->setEvent($this);
+        }
+        return $this;
+    }
+
+    public function removeInvitation(Invitation $invitation): self
+    {
+        if ($this->invitations->removeElement($invitation)) {
+            if ($invitation->getEvent() === $this) {
+                $invitation->setEvent(null);
+            }
+        }
         return $this;
     }
 }

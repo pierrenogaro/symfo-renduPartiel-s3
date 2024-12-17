@@ -20,11 +20,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(["userjson", "event:read"])]
+    #[Groups(["userjson", "event:read", 'invitation:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
-    #[Groups(["userjson", "event:read"])]
+    #[Groups(["userjson", "event:read", "invitation:read"])]
     private ?string $username = null;
 
     /**
