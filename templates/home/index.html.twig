@@ -1,24 +1,28 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Partiel Documentation{% endblock %}
+{% block title %}API Documentation{% endblock %}
 
 {% block body %}
+
+
     <div class="container py-5">
         <div class="text-center mb-5">
-            <h1 class="display-4 text-white">🌟Partiel Documentation🌟</h1>
-            <p class="text-white-50">A complete guide to using our API for registration, authentication, and product management.</p>
+            <h1 class="display-4 text-white">🌟 Partiel Documentation🌟</h1>
         </div>
 
-        <div class="card mb-4 shadow-lg border-0">
+        <div class="card mb-5 shadow-lg border-0">
             <div class="card-header bg-primary text-white">
-                <h2 class="h4">📢 Introduction</h2>
+                <h2 class="h4">ℹ️ API Partiel Information</h2>
             </div>
             <div class="card-body bg-light">
-                <p>Welcome to our API documentation! This API allows users to:</p>
-                <ul>
-                    <li>Register and authenticate using secure JWT tokens.</li>
-                    <li>Manage a collection of products with CRUD functionalities.</li>
-                </ul>
+                <p>This API is part of the partial exam project. All routes should be used with the following base URL:</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>https://symfo-rendu-partiel-s3.pierrenogaro.com/</pre>
+                </div>
+                <p>⚠️ Routes containing <code>/api</code> require a valid JWT token in the <code>Authorization</code> header:</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>Authorization: Bearer &lt;token&gt;</pre>
+                </div>
             </div>
         </div>
 
@@ -27,23 +31,31 @@
                 <h2 class="h4">🔐 User Registration</h2>
             </div>
             <div class="card-body bg-light">
-                <p><strong>POST /api/register</strong> - Create a new user account.</p>
+                <p><strong>POST /register</strong> - Create a new user account.</p>
+                <h5>🔹 Request Headers</h5>
                 <div class="bg-dark text-white p-3 rounded">
                     <pre>
-Headers: Content-Type: application/json
-Body: {
-    "email": "user@example.com",
+Content-Type: application/json
+                    </pre>
+                </div>
+
+                <h5>🔹 Request Body</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "username": "yourUsername",
     "password": "yourPassword"
 }
                     </pre>
                 </div>
-                <p>Example Response:</p>
+
+                <h5>✅ Example Response</h5>
                 <div class="bg-dark text-white p-3 rounded">
                     <pre>
 {
-    "id": 1,
-    "email": "user@example.com",
-    "roles": ["ROLE_USER"]
+    "message": "User and profile created successfully.",
+    "user": "usernameExample",
+    "profile": 1
 }
                     </pre>
                 </div>
@@ -52,20 +64,28 @@ Body: {
 
         <div class="card mb-4 shadow-lg border-0">
             <div class="card-header bg-dark text-white">
-                <h2 class="h4">🔐 Authentication</h2>
+                <h2 class="h4">🔐 User Authentication</h2>
             </div>
             <div class="card-body bg-light">
-                <p><strong>POST /api/login_check</strong> - Obtain a JWT token with valid credentials.</p>
+                <p><strong>POST /api/login_check</strong> - Obtain a JWT token.</p>
+                <h5 >🔹 Request Headers</h5>
                 <div class="bg-dark text-white p-3 rounded">
                     <pre>
-Headers: Content-Type: application/json
-Body: {
-    "username": "user@example.com",
+Content-Type: application/json
+                    </pre>
+                </div>
+
+                <h5 class="">🔹 Request Body</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "username": "yourUsername",
     "password": "yourPassword"
 }
                     </pre>
                 </div>
-                <p>Example Response:</p>
+
+                <h5>✅ Example Response</h5>
                 <div class="bg-dark text-white p-3 rounded">
                     <pre>
 {
@@ -73,26 +93,430 @@ Body: {
 }
                     </pre>
                 </div>
-                <div class="alert alert-info mt-3">
-                    <strong>Note:</strong> Use the JWT token in the <code>Authorization</code> header for all protected routes:
-                    <pre>Authorization: Bearer &lt;token&gt;</pre>
+
+                <p><strong>🔑 Token Usage:</strong> Add the token in the <code>Authorization</code> header for protected routes.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Authorization: Bearer &lt;token&gt;
+                    </pre>
+                </div>
+            </div>
+        </div>
+        <div class="card mb-4 shadow-lg border-0">
+            <div class="card-header bg-success text-white">
+                <h2 class="h4">📝 Profile Management</h2>
+            </div>
+            <div class="card-body bg-light">
+                <h5>🔹 GET /api/profiles</h5>
+                <p><strong>Description:</strong> Retrieves all profiles.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+[
+    {
+        "id": 1,
+        "username": "usernamExemple",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "user@example.com",
+        "bio": "I love Symfony!"
+    }
+]
+                    </pre>
+                </div>
+
+                <h5>🔹 GET /api/profile/{id}</h5>
+                <p><strong>Description:</strong> Retrieves the details of a specific profile and its events.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "profile": {
+        "id": 1,
+        "username": "usernameExample",
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "user@example.com",
+        "bio": "I love Symfony!"
+    },
+    "events": [
+        {
+            "id": 3,
+            "name": "Symfony Workshop",
+            "place": "Lyon"
+        }
+    ]
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 PUT /api/profile/update/{id}</h5>
+                <p><strong>Description:</strong> Updates the information of an existing profile.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+    Authorization: Bearer &lt;token&gt;
+
+Body:
+{
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "email": "jane.doe@example.com",
+    "bio": "I love Symfony and PHP!",
+    "phoneNumber": "1234567890"
+}
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "id": 1,
+    "username": "usernameExample",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "email": "jane.doe@example.com",
+    "bio": "I love Symfony and PHP!",
+    "phoneNumber": "1234567890"
+}
+                    </pre>
                 </div>
             </div>
         </div>
 
         <div class="card mb-4 shadow-lg border-0">
-            <div class="card-header bg-success text-white">
-                <h2 class="h4">📦 Product Management</h2>
+            <div class="card-header bg-info text-white">
+                <h2 class="h4">📅 Event Management</h2>
             </div>
             <div class="card-body bg-light">
-                <p>Manage products with the following endpoints:</p>
+                <h5>🔹 GET /events</h5>
+                <p><strong>Description:</strong> Retrieves the list of all events.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+[
+    {
+        "id": 1,
+        "name": "Symfony Workshop",
+        "place": "Lyon",
+        "startDate": "2024-01-10T10:00:00",
+        "endDate": "2024-01-10T18:00:00",
+        "typeOfPlace": "private",
+        "state": "on schedule",
+        "author": "usernameExample"
+    }
+]
+                    </pre>
+                </div>
+
+                <h5>🔹 GET /event/{id}</h5>
+                <p><strong>Description:</strong> Retrieves a specific event, its participants, and contributions.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "event": {
+        "id": 1,
+        "name": "Symfony Workshop",
+        "place": "Lyon",
+        "typeOfPlace": "private",
+        "state": "on schedule"
+    },
+    "accepted_participants": [
+        {"username": "usernameExample"}
+    ],
+    "pending_invitations": [],
+    "rejected_invitations": [],
+    "contributions": []
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 POST /api/event/create</h5>
+                <p><strong>Description:</strong> Creates a new event.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+    Authorization: Bearer &lt;token&gt;
+
+Body:
+{
+    "name": "Symfony Workshop",
+    "place": "Lyon",
+    "startDate": "2024-01-10T10:00:00",
+    "endDate": "2024-01-10T18:00:00",
+    "typeOfPlace": "private"
+}
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "id": 1,
+    "name": "Symfony Workshop",
+    "place": "Lyon",
+    "state": "on schedule",
+    "typeOfPlace": "private",
+    "author": "user@example.com"
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 PUT /api/event/update/{id}</h5>
+                <p><strong>Description:</strong> Updates an existing event.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+    Authorization: Bearer &lt;token&gt;
+
+Body:
+{
+    "name": "Updated Symfony Workshop",
+    "place": "Paris",
+    "startDate": "2024-02-01T10:00:00",
+    "endDate": "2024-02-01T18:00:00",
+    "state": false
+}
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "id": 1,
+    "name": "Updated Symfony Workshop",
+    "place": "Paris",
+    "state": "canceled",
+    "typeOfPlace": "private"
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 DELETE /api/event/delete/{id}</h5>
+                <p><strong>Description:</strong> Deletes an event.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Authorization: Bearer &lt;token&gt;
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "message": "Event deleted successfully"
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 POST /api/event/participate/{id}</h5>
+                <p><strong>Description:</strong> Registers a user for an event.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Authorization: Bearer &lt;token&gt;
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "message": "You have successfully registered for the event."
+}
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4 shadow-lg border-0">
+            <div class="card-header bg-warning text-white">
+                <h2 class="h4">✉️ Invitation Management</h2>
+            </div>
+            <div class="card-body bg-light">
+                <h5>🔹 GET /api/my/invitations</h5>
+                <p><strong>Description:</strong> Lists all invitations for the connected user.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Authorization: Bearer &lt;token&gt;
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+[
+    {
+        "id": 2,
+        "event": {
+            "id": 1,
+            "name": "Symfony Workshop"
+        },
+        "status": "pending"
+    }
+]
+                    </pre>
+                </div>
+
+                <h5>🔹 POST /api/invite/{eventId}</h5>
+                <p><strong>Description:</strong> Sends an invitation to a user for a private event.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+    Authorization: Bearer &lt;token&gt;
+
+Body:
+{
+    "userId": 3
+}
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "message": "Invitation sent successfully."
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 PUT /api/invitation/{id}/respond</h5>
+                <p><strong>Description:</strong> Allows the invited user to respond to an invitation (accept or reject).</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+    Authorization: Bearer &lt;token&gt;
+
+Body:
+{
+    "state": "accepted"
+}
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "message": "Invitation responded successfully."
+}
+                    </pre>
+                </div>
+
+                <p><strong>🔹 Notes:</strong></p>
                 <ul>
-                    <li><strong>GET /products</strong> - Retrieve a list of all products.</li>
-                    <li><strong>GET /product/{id}</strong> - Retrieve details of a specific product by ID.</li>
-                    <li><strong>POST /api/product</strong> - Create a new product.</li>
-                    <li><strong>PUT /api/product/{id}</strong> - Update a product.</li>
-                    <li><strong>DELETE /api/product/{id}</strong> - Delete a product.</li>
+                    <li>Valid values for <code>state</code> are: <code>accepted</code> and <code>rejected</code>.</li>
+                    <li>An <code>accepted</code> response automatically adds the user to the list of participants.</li>
                 </ul>
+            </div>
+        </div>
+
+        <div class="card mb-4 shadow-lg border-0">
+            <div class="card-header bg-secondary text-white">
+                <h2 class="h4">💡 Contribution Management</h2>
+            </div>
+            <div class="card-body bg-light">
+                <h5>🔹 POST /api/event/{id}/add/contribution</h5>
+                <p><strong>Description:</strong> Adds a suggestion to a specific event.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Content-Type: application/json
+    Authorization: Bearer &lt;token&gt;
+
+Body:
+{
+    "suggestion": "Bring snacks for the workshop"
+}
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "message": "Suggestion added successfully."
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 PUT /api/contribution/{id}/take</h5>
+                <p><strong>Description:</strong> Takes charge of a suggestion (reserves the contribution).</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Authorization: Bearer &lt;token&gt;
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "message": "Contribution taken successfully."
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 PUT /api/contribution/{id}/untake</h5>
+                <p><strong>Description:</strong> Releases a previously taken suggestion.</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Authorization: Bearer &lt;token&gt;
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "message": "Contribution untaken successfully."
+}
+                    </pre>
+                </div>
+
+                <h5>🔹 DELETE /api/contribution/delete/{id}</h5>
+                <p><strong>Description:</strong> Deletes a contribution (by its author or the organizer).</p>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+Headers:
+    Authorization: Bearer &lt;token&gt;
+                    </pre>
+                </div>
+                <h5>✅ Example Response</h5>
+                <div class="bg-dark text-white p-3 rounded">
+                    <pre>
+{
+    "message": "Contribution deleted successfully."
+}
+                    </pre>
+                </div>
             </div>
         </div>
     </div>

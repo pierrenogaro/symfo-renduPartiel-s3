@@ -43,21 +43,22 @@ class EventController extends AbstractController
             return $invitation->getStatus() === 'rejected';
         });
 
+        $contributions = $event->getContributions();
+
         $eventData = $serializer->serialize($event, 'json', ['groups' => 'event:read']);
         $acceptedData = $serializer->serialize($acceptedParticipants, 'json', ['groups' => 'userjson']);
         $pendingData = $serializer->serialize($pendingInvitations, 'json', ['groups' => 'invitation:read']);
         $rejectedData = $serializer->serialize($rejectedInvitations, 'json', ['groups' => 'invitation:read']);
+        $contributionData = $serializer->serialize($contributions, 'json', ['groups' => 'contribution:read']);
 
         return new JsonResponse([
             'event' => json_decode($eventData),
             'accepted_participants' => json_decode($acceptedData),
             'pending_invitations' => json_decode($pendingData),
-            'rejected_invitations' => json_decode($rejectedData)
+            'rejected_invitations' => json_decode($rejectedData),
+            'contributions' => json_decode($contributionData),
         ], 200);
     }
-
-
-
 
     #[Route('/api/event/create', methods: ['POST'])]
     public function create(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
@@ -104,7 +105,6 @@ class EventController extends AbstractController
         $responseData = $serializer->serialize($event, 'json', ['groups' => 'event:read']);
         return new JsonResponse($responseData, 201, [], true);
     }
-
 
     #[Route('/api/event/update/{id}', methods: ['PUT'])]
     public function update(Request $request, Event $event, EntityManagerInterface $entityManager, SerializerInterface $serializer): JsonResponse
@@ -154,9 +154,6 @@ class EventController extends AbstractController
         $responseData = $serializer->serialize($event, 'json', ['groups' => 'event:read']);
         return new JsonResponse($responseData, 200, [], true);
     }
-
-
-
 
     #[Route('/api/event/delete/{id}', methods: ['DELETE'])]
     public function delete(Event $event, EntityManagerInterface $entityManager): JsonResponse

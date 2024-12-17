@@ -66,10 +66,14 @@ class Event
     #[ORM\OneToMany(mappedBy: 'event', targetEntity: Invitation::class, cascade: ['persist', 'remove'])]
     private Collection $invitations;
 
+    #[ORM\OneToMany(mappedBy: 'event', targetEntity: Contribution::class, cascade: ['persist', 'remove'])]
+    private Collection $contributions;
+
     public function __construct()
     {
         $this->participants = new ArrayCollection();
         $this->invitations = new ArrayCollection();
+        $this->contributions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -238,5 +242,10 @@ class Event
             }
         }
         return $this;
+    }
+
+    public function getContributions(): Collection
+    {
+        return $this->contributions;
     }
 }
